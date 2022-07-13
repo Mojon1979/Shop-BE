@@ -1,13 +1,14 @@
 import express, { json } from 'express';
 import cors from 'cors';
 import { handleError } from './utils/error';
+import { config } from './config/config';
 
 const app = express();
 
 app
   .use(
     cors({
-      origin: 'http://localhost:3000',
+      origin: config.smallShopCorsOrigin,
     })
   )
   .use(json())
