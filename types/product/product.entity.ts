@@ -18,7 +18,7 @@ export type NewProductEntity = Omit<
   'createAT' | 'endAT' | 'modifyAT'
 >;
 
-export type GetAllProductsToShopRes = Omit<NewProductEntity, 'count'>;
+export type GetAllProductsRes = Omit<NewProductEntity, 'count'>;
 
 export interface AddProductRes {
   id: string;

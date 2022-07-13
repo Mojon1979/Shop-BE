@@ -2,10 +2,9 @@ import { FieldPacket } from 'mysql2';
 import { v4 as uuid } from 'uuid';
 import { poll } from '../utils/db';
 import {
-  AddProductRes,
-  GetAllProductsToShopRes,
+  AddProductRes, GetAllProductsRes,
   NewProductEntity,
-  ProductEntity,
+  ProductEntity
 } from '../types';
 import { ValidationError } from '../utils/error';
 import { ProductCountRecord } from './product.count.record';
@@ -103,8 +102,8 @@ export class ProductRecord implements ProductEntity {
     });
   }
 
-  static async getAllProductsToShop(): Promise<
-    GetAllProductsToShopRes[] | null
+  static async getAllProducts(): Promise<
+    GetAllProductsRes[] | null
   > {
     const [results] = (await poll.execute(
       'SELECT id, name, description, price  ' +
