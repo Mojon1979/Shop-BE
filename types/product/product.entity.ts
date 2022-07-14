@@ -3,7 +3,13 @@ export interface CountProductEntity {
   count: number;
 }
 
-export interface ProductEntity extends Omit<CountProductEntity, 'id'> {
+export interface UrlProductEntity {
+  id?: number;
+  idProd: string;
+  url: string;
+}
+
+export interface ProductEntity extends Omit<CountProductEntity, 'id'>, Omit<UrlProductEntity, 'id' | 'idProd'> {
   id?: string;
   name: string;
   description: string;
@@ -18,7 +24,7 @@ export type NewProductEntity = Omit<
   'createAT' | 'endAT' | 'modifyAT'
 >;
 
-export type GetAllProductsRes = Omit<NewProductEntity, 'count'>;
+export type GetAllProductsRes = Omit<NewProductEntity, 'count' | 'description'>;
 
 export interface AddProductRes {
   id: string;

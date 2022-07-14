@@ -3,8 +3,7 @@ import { ProductRecord } from '../records/product.record';
 
 export const productRouter = Router();
 
-productRouter.get('/', async  (req: Request, res: Response) => {
+productRouter.get('/', async (req: Request, res: Response) => {
   const productsList = await ProductRecord.getAllProducts();
-  res.json(productsList)
+  res.json(productsList);
 });
-

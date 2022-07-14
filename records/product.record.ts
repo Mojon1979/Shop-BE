@@ -2,9 +2,10 @@ import { FieldPacket } from 'mysql2';
 import { v4 as uuid } from 'uuid';
 import { poll } from '../utils/db';
 import {
-  AddProductRes, GetAllProductsRes,
+  AddProductRes,
+  GetAllProductsRes,
   NewProductEntity,
-  ProductEntity
+  ProductEntity,
 } from '../types';
 import { ValidationError } from '../utils/error';
 import { ProductCountRecord } from './product.count.record';
@@ -20,6 +21,8 @@ export class ProductRecord implements ProductEntity {
 
   price: number;
 
+  url: string;
+
   count: number;
 
   createAT?: string;
@@ -29,7 +32,7 @@ export class ProductRecord implements ProductEntity {
   modifyAT?: string;
 
   constructor(obj: NewProductEntity) {
-    const { id, name, description, price, count } = obj;
+    const { id, name, description, price, url, count } = obj;
 
     if (typeof name !== 'string' || !name || name.length > 35) {
       throw new ValidationError(
@@ -53,6 +56,11 @@ export class ProductRecord implements ProductEntity {
       );
     }
 
+    if (typeof url !== 'string' || !url || url.length > 100) {
+      throw new ValidationError('\n' +
+        'Url must be a string of no more than 100 characters.')
+    }
+
     if (typeof count !== 'number' || count < 0) {
       throw new ValidationError(
         'The number of products must be a number greater than or equal to 0.'
@@ -63,6 +71,7 @@ export class ProductRecord implements ProductEntity {
     this.name = name;
     this.description = description;
     this.price = price;
+    this.url = url;
     this.count = count;
   }
 
@@ -102,20 +111,19 @@ export class ProductRecord implements ProductEntity {
     });
   }
 
-  static async getAllProducts(): Promise<
-    GetAllProductsRes[] | null
-  > {
+  static async getAllProducts(): Promise<GetAllProductsRes[] | null> {
     const [results] = (await poll.execute(
-      'SELECT id, name, description, price  ' +
-        'FROM product ' +
-        'WHERE endAT is null '
+      'SELECT p.id, p.name, p.price, u.url  ' +
+        'FROM product p ' +
+        'INNER JOIN product_url u on u.idProd = p.id ' +
+        'WHERE p.endAT is null '
     )) as ProductRecordResult;
 
     return results.length === 0
       ? null
       : results.map((result) => {
-          const { id, name, description, price } = result;
-          return { id, name, description, price };
+          const { id, name, price, url } = result;
+          return { id, name, price, url };
         });
   }
 }
