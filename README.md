@@ -25,3 +25,15 @@ export const config = {
 
 8. Installing packages from package.json
 9. Run the npm start application
+
+## Short description
+
+A small shop where support has been added:
+
+1. Displaying products to the customer (pagination)
+2. View product details
+3. Adding a product
+4. Displaying all products for Admin (pagination)
+5. Possibility to remove the product
+6. Product modification card
+
