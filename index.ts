@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import { handleError } from './utils/error';
 import { config } from './config/config';
 import { productRouter } from './routers/productRouter';
+import { adminRouter } from './routers/adminRouter';
 
 const app = express();
 
@@ -22,6 +23,7 @@ app
   )
 
   .use('/product', productRouter)
+  .use('/admin', adminRouter)
   .use(handleError)
   .listen(3001, 'localhost', () => {
     console.log('Listening on http://localhost:3001');

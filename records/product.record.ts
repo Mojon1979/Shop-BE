@@ -3,12 +3,15 @@ import { v4 as uuid } from 'uuid';
 import { poll } from '../utils/db';
 import {
   AddProductRes,
-  GetAllProductsRes, GetOneProductRes,
+  GetAllProductsRes, GetOneProductForAdminRes,
+  GetOneProductRes,
   NewProductEntity,
-  ProductEntity
+  ProductEntity,
+  UserRole
 } from '../types';
 import { ValidationError } from '../utils/error';
 import { ProductCountRecord } from './product.count.record';
+import { ProductUrlRecord } from './product.url.record';
 
 type ProductRecordResult = [ProductEntity[], FieldPacket[]];
 
@@ -96,6 +99,7 @@ export class ProductRecord implements ProductEntity {
     );
 
     await ProductCountRecord.insert(this.id, this.count);
+    await ProductUrlRecord.insert(this.id, this.url);
 
     return {
       id: this.id,
@@ -105,40 +109,48 @@ export class ProductRecord implements ProductEntity {
 
   async delete(): Promise<void> {
     await ProductCountRecord.delete(this.id);
+    await ProductUrlRecord.delete(this.id);
 
     await poll.execute('DELETE FROM product WHERE id = :id', {
       id: this.id,
     });
   }
 
-  static async getOneProduct(idProd: string): Promise<GetOneProductRes | null> {
-    const [results] = (await poll.execute(
-      'SELECT p.id, p.name, p.description, p.price, u.url  ' +
-      'FROM product p ' +
-      'INNER JOIN product_url u on u.idProd = p.id ' +
-      'WHERE ' +
-        'p.endAT is null ' +
-        'and p.id = :idProd', {
-        idProd
+  static async getOneProduct(id: string, role: UserRole): Promise<GetOneProductRes | GetOneProductForAdminRes | null> {
+    const sql = role === UserRole.User
+      ? `
+      SELECT p.id, p.name, p.description, p.price, u.url 
+      FROM product p 
+        INNER JOIN product_url u on u.idProd = p.id
+      WHERE
+        p.endAT is null
+        and p.id = :id
+    ` : `
+      SELECT p.id, p.name, p.description, p.price, u.url, c.count, p.endAT 
+      FROM product p 
+        INNER JOIN product_url u on u.idProd = p.id
+        INNER JOIN product_count c on p.id = c.id
+      WHERE
+        p.id = :id
+    `;
+
+    const [results] = (await poll.execute(sql, {
+      id
       }
     )) as ProductRecordResult;
 
-    if (results.length === 0) {
-      return null
-    }
-
-    const {id, name, description, url, price} = results[0]
-    return {id, name, description, url, price};
+    return results.length === 0 ? null : results[0];
   }
 
-  static async getAllProducts(): Promise<GetAllProductsRes[] | null> {
-    const [results] = (await poll.execute(
-      'SELECT p.id, p.name, p.price, u.url  ' +
-        'FROM product p ' +
-        'INNER JOIN product_url u on u.idProd = p.id ' +
-        'WHERE ' +
-          'p.endAT is null '
-    )) as ProductRecordResult;
+  static async getAllProducts(role: UserRole): Promise<GetAllProductsRes[] | null> {
+    const sql = `
+      SELECT p.id, p.name, p.price, u.url 
+      FROM product p
+        INNER JOIN product_url u on u.idProd = p.id
+      ${role === UserRole.User ? 'WHERE p.endAT is null' : '' }
+    `;
+
+    const [results] = (await poll.execute(sql)) as ProductRecordResult;
 
     return results.length === 0
       ? null
@@ -147,4 +159,5 @@ export class ProductRecord implements ProductEntity {
           return { id, name, price, url };
         });
   }
+
 }
