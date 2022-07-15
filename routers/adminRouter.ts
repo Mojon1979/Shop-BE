@@ -28,12 +28,6 @@ adminRouter
     res.json(updatedProduct);
   })
 
-  .get('/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const product: GetOneProductForAdminRes = await ProductRecord.getOneProduct(id, UserRole.Admin);
-    res.json(product);
-  })
-
   .delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const product: GetOneProductForAdminRes = await ProductRecord.getOneProduct(id, UserRole.Admin);
@@ -51,6 +45,12 @@ adminRouter
       isDelete: true,
       id,
     } as DeleteProductRes)
+  })
+
+  .get('/card/:id', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const product: GetOneProductForAdminRes = await ProductRecord.getOneProduct(id, UserRole.Admin);
+    res.json(product);
   })
 
   .get('/:offset/:count', async (req: Request, res: Response) => {

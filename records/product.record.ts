@@ -193,7 +193,7 @@ export class ProductRecord implements ProductEntity {
             )b
       LIMIT :offset, :count
     `;
-    console.log(sql);
+
     const [results] = (await poll.execute(sql, {
       offset,
       count,
