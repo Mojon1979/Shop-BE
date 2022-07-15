@@ -3,9 +3,9 @@ import { v4 as uuid } from 'uuid';
 import { poll } from '../utils/db';
 import {
   AddProductRes,
-  GetAllProductsRes,
+  GetAllProductsRes, GetOneProductRes,
   NewProductEntity,
-  ProductEntity,
+  ProductEntity
 } from '../types';
 import { ValidationError } from '../utils/error';
 import { ProductCountRecord } from './product.count.record';
@@ -111,12 +111,33 @@ export class ProductRecord implements ProductEntity {
     });
   }
 
+  static async getOneProduct(idProd: string): Promise<GetOneProductRes | null> {
+    const [results] = (await poll.execute(
+      'SELECT p.id, p.name, p.description, p.price, u.url  ' +
+      'FROM product p ' +
+      'INNER JOIN product_url u on u.idProd = p.id ' +
+      'WHERE ' +
+        'p.endAT is null ' +
+        'and p.id = :idProd', {
+        idProd
+      }
+    )) as ProductRecordResult;
+
+    if (results.length === 0) {
+      return null
+    }
+
+    const {id, name, description, url, price} = results[0]
+    return {id, name, description, url, price};
+  }
+
   static async getAllProducts(): Promise<GetAllProductsRes[] | null> {
     const [results] = (await poll.execute(
       'SELECT p.id, p.name, p.price, u.url  ' +
         'FROM product p ' +
         'INNER JOIN product_url u on u.idProd = p.id ' +
-        'WHERE p.endAT is null '
+        'WHERE ' +
+          'p.endAT is null '
     )) as ProductRecordResult;
 
     return results.length === 0

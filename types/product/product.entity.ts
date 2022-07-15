@@ -14,6 +14,7 @@ export interface ProductEntity extends Omit<CountProductEntity, 'id'>, Omit<UrlP
   name: string;
   description: string;
   price: number;
+  url: string;
   createAT?: string;
   endAT?: string;
   modifyAT?: string;
@@ -23,6 +24,8 @@ export type NewProductEntity = Omit<
   ProductEntity,
   'createAT' | 'endAT' | 'modifyAT'
 >;
+
+export type GetOneProductRes = Omit<NewProductEntity, 'count'>;
 
 export type GetAllProductsRes = Omit<NewProductEntity, 'count' | 'description'>;
 
