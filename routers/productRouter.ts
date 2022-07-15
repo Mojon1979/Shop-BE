@@ -6,13 +6,22 @@ export const productRouter = Router();
 
 productRouter
 
-  .get('/', async (req: Request, res: Response) => {
-    const productsList: GetAllProductsRes[] = await ProductRecord.getAllProducts(UserRole.User);
-    res.json(productsList);
-  })
-
   .get('/:id', async (req: Request, res: Response) => {
-    const { id } = req.params
-    const product: GetOneProductRes = await ProductRecord.getOneProduct(id, UserRole.User);
+    const { id } = req.params;
+    const product: GetOneProductRes = await ProductRecord.getOneProduct(
+      id,
+      UserRole.User
+    );
     res.json(product);
   })
+
+  .get('/:offset/:count', async (req: Request, res: Response) => {
+    const { offset, count } = req.params;
+    const productsList: GetAllProductsRes[] =
+      await ProductRecord.getAllProducts(
+        Number(offset),
+        Number(count),
+        UserRole.User
+      );
+    res.json(productsList);
+  });

@@ -4,7 +4,7 @@ import {
   DeleteProductRes,
   GetAllProductsRes,
   GetOneProductForAdminRes,
-  NewProductEntity,
+  NewProductEntity, ProductEntity,
   UserRole
 } from '../types';
 import { ProductRecord } from '../records/product.record';
@@ -13,16 +13,19 @@ export const adminRouter = Router();
 
 adminRouter
 
-  .get('/', async (req: Request, res: Response) => {
-    const productsList: GetAllProductsRes[] = await ProductRecord.getAllProducts(UserRole.Admin);
-    res.json(productsList);
-  })
-
   .post('/add', async (req: Request, res: Response) => {
     const data: NewProductEntity = req.body;
     const newProduct = new ProductRecord(data);
     const addProduct: AddProductRes = await newProduct.insert();
     res.json(addProduct);
+  })
+
+  .patch('/card', async (req: Request, res: Response) => {
+    const data: ProductEntity = req.body;
+    const product = new ProductRecord(data);
+    await product.update();
+    const updatedProduct: GetOneProductForAdminRes = await ProductRecord.getOneProduct(product.id, UserRole.Admin);
+    res.json(updatedProduct);
   })
 
   .get('/:id', async (req: Request, res: Response) => {
@@ -48,4 +51,10 @@ adminRouter
       isDelete: true,
       id,
     } as DeleteProductRes)
+  })
+
+  .get('/:offset/:count', async (req: Request, res: Response) => {
+    const { offset, count } = req.params;
+    const productsList: GetAllProductsRes[] = await ProductRecord.getAllProducts(Number(offset), Number(count), UserRole.Admin);
+    res.json(productsList);
   });

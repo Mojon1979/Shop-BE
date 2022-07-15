@@ -8,19 +8,34 @@ export class ProductUrlRecord implements UrlProductEntity {
 
   url: string;
 
-  static async insert(idProd: string, url: string): Promise<void> {
+  constructor(idProd: string, url: string) {
+    this.idProd = idProd;
+    this.url = url;
+  }
+
+  async insert(): Promise<void> {
     await poll.execute(
       'INSERT INTO product_url (idProd, url) VALUES (:idProd, :url)',
       {
-        idProd,
-        url,
+        idProd: this.idProd,
+        url: this.url,
       }
     );
   }
 
-  static async delete(idProd: string): Promise<void> {
+  async update(): Promise<void> {
+    await poll.execute(
+      'UPDATE product_url SET url = :url WHERE idProd = :idProd',
+      {
+        idProd: this.idProd,
+        url: this.url,
+      }
+    );
+  }
+
+  async delete(): Promise<void> {
     await poll.execute('DELETE FROM product_url WHERE idProd = :idProd', {
-      idProd,
+      idProd: this.idProd,
     });
   }
 }

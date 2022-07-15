@@ -28,16 +28,21 @@ export type NewProductEntity = Omit<
 
 export type GetOneProductRes = Omit<NewProductEntity, 'count'>;
 
-export type GetOneProductForAdminRes = Omit<ProductEntity, 'createAT' | 'modifyAT'>;
+export type GetOneProductForAdminRes = Omit<
+  ProductEntity,
+  'createAT' | 'modifyAT'
+>;
 
-export type GetAllProductsRes = Omit<NewProductEntity, 'count' | 'description'>;
+export type GetAllProductsRes = Omit<NewProductEntity, 'description'>;
 
-export type DeleteProductRes = {
-  isDelete: false,
-} | {
-  isDelete: true,
-  id: string,
-}
+export type DeleteProductRes =
+  | {
+      isDelete: false;
+    }
+  | {
+      isDelete: true;
+      id: string;
+    };
 
 export interface AddProductRes {
   id: string;

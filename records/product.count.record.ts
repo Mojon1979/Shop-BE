@@ -6,19 +6,34 @@ export class ProductCountRecord implements CountProductEntity {
 
   count: number;
 
-  static async insert(id: string, count: number): Promise<void> {
+  constructor(id: string, count: number) {
+    this.id = id;
+    this.count = count;
+  }
+
+  async insert(): Promise<void> {
     await poll.execute(
       'INSERT INTO product_count (id, count) VALUES (:id, :count)',
       {
-        id,
-        count,
+        id: this.id,
+        count: this.count,
       }
     );
   }
 
-  static async delete(id: string): Promise<void> {
+  async update(): Promise<void> {
+    await poll.execute(
+      'update product_count SET count = :count WHERE id = :id',
+      {
+        id: this.id,
+        count: this.count,
+      }
+    );
+  }
+
+  async delete(): Promise<void> {
     await poll.execute('DELETE FROM product_count WHERE id = :id', {
-      id,
+      id: this.id,
     });
   }
 }
